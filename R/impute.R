@@ -51,7 +51,7 @@ SnKnn <- function(obj, k=5, verbose=FALSE){
 
   sum_intensity <- rowSums(exprs(obj), na.rm=TRUE)
 
-  if(!args$verbose){
+  if(!verbose){
     sink("/dev/null")
   }
 
@@ -59,7 +59,7 @@ SnKnn <- function(obj, k=5, verbose=FALSE){
     normalise(method="sum") %>%
     MSnbase::impute(method="knn", k=k)
 
-  if(!args$verbose){
+  if(!verbose){
     sink()
   }
 
@@ -90,14 +90,16 @@ getTruthImputed <- function(obj, missing_obj, truth_obj){
 }
 
 #' Obtain the Root mean squared error (RMSE)
-#' @param obj data.frame() with truth and imputed columns
+#' @param truth ground truths
+#' @param imputed imputed values
 #' @return RMSE
 #' @export
 #' @export
-#' .data <- data.frame("truth"=c(1,2,3,4,5), "imputed"=c(1,3,2,4,6))
-#' print(getRMSE(.data))
-getRMSE <- function(obj){
-  RMSE <- sqrt(mean((obj$truth - obj$imputed)^2))
+#' truth <- c(1,2,3,4,5)
+#' imputed <- c(1,3,2,4,6))
+#' print(getRMSE(truth, imputed))
+getRMSE <- function(truth, imputed){
+  RMSE <- sqrt(mean((truth - imputed)^2))
   invisible(RMSE)
 }
 
@@ -115,4 +117,48 @@ plotTruthImputed <- function(obj){
     geom_abline(slope=1, linetype="dashed", colour=cbPalette[7])
 
   return(p)
+}
+
+#' Impute missing values using either \code{\link{MSnbase::impute}} or 
+#' \code{\link{RobCompositions}}
+#' @param obj MSnSet with missing values
+#' @param method imputation method, Choose from knn, MinDet, MinProb, 
+#' sn-knn, it-comp-knn or comp-knn
+#' @return input MSnSet with missing values imputed
+#' @seealso \code{\link{robCompositions::impKNNa}} for comp-knn and
+#' \code{\link{robCompositions::impCoda}} for it-comp-knn methods
+#' @export
+imputeOptProc <- function(obj, method, k, verbose=FALSE){
+  if(verbose) write("Imputing missing values", stdout())
+  msnbase_methods <- c("knn", "MinDet", "MinProb")
+  allowed_methods <- c(msnbase_methods, "sn-knn", "it-comp-knn", "comp-knn") 
+
+  if(!method %in% allowed_methods){
+    stop(sprintf("method must be in %s", paste(allowed_methods, sep=",")))
+  }
+  
+  if(method %in% msnbase_methods){
+    if(!verbose){
+      sink("/dev/null")
+    }
+    
+    if(method=="knn"){
+      .imputed <- obj %>% MSnbase::impute(method="knn", k=args$k)
+    } else {
+      .imputed <- obj %>% MSnbase::impute(method=method)
+    }
+    
+    if(!verbose){
+      sink()
+    }
+    
+  } else if(method=="sn-knn"){
+    .imputed <- obj %>%
+      SnKnn(k=k, verbose=verbose)
+  } else {
+    .imputed <- obj %>%
+      robComp(method=method, k=k, sum_first=TRUE, verbose=TRUE)
+  }
+
+  return(.imputed)
 }
