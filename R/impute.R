@@ -94,7 +94,6 @@ getTruthImputed <- function(obj, missing_obj, truth_obj){
 #' @param imputed imputed values
 #' @return RMSE
 #' @export
-#' @export
 #' truth <- c(1,2,3,4,5)
 #' imputed <- c(1,3,2,4,6))
 #' print(getRMSE(truth, imputed))
@@ -131,7 +130,7 @@ plotTruthImputed <- function(obj){
 imputeOptProc <- function(obj, method, k, verbose=FALSE){
   if(verbose) write("Imputing missing values", stdout())
   msnbase_methods <- c("knn", "MinDet", "MinProb")
-  allowed_methods <- c(msnbase_methods, "sn-knn", "it-comp-knn", "comp-knn") 
+  allowed_methods <- c(msnbase_methods, "sn-knn","it-comp-knn", "comp-knn") 
 
   if(!method %in% allowed_methods){
     stop(sprintf("method must be in %s", paste(allowed_methods, sep=",")))

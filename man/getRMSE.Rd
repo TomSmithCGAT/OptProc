@@ -4,10 +4,12 @@
 \alias{getRMSE}
 \title{Obtain the Root mean squared error (RMSE)}
 \usage{
-getRMSE(obj)
+getRMSE(truth, imputed)
 }
 \arguments{
-\item{obj}{data.frame() with truth and imputed columns}
+\item{truth}{ground truths}
+
+\item{imputed}{imputed values}
 }
 \value{
 RMSE
