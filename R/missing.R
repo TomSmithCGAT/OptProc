@@ -90,7 +90,6 @@ These comprise %s unique meta-features\n", n_features, length(id_both)))
   # create new array matrices to hold the truth and missing quantification values
   truth_e <- missing_e <- exprs(obj)
 
-
   missing_n <- 0
   for(id in id_both){
 
