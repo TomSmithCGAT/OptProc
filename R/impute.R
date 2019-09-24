@@ -78,12 +78,17 @@ SnKnn <- function(obj, k=5, verbose=FALSE){
 #' @export
 getTruthImputed <- function(obj, missing_obj, truth_obj){
 
+  missing_obj <- missing_obj[rownames(obj),]
+  truth_obj <- truth_obj[rownames(obj),]
+  
   missing <- missing_obj[fData(missing_obj)$sim_missing,]
   truth <- truth_obj[fData(missing_obj)$sim_missing,]
   obj_imp_only <- obj[fData(missing_obj)$sim_missing,]
 
   missing_ix <- is.na(exprs(missing))
+
   missing_truth <- exprs(truth)[missing_ix]
+
   missing_imputed <- exprs(obj_imp_only)[missing_ix]
 
   return(data.frame("truth"=missing_truth, "imputed"=missing_imputed))
@@ -133,7 +138,7 @@ imputeOptProc <- function(obj, method, k, verbose=FALSE){
   allowed_methods <- c(msnbase_methods, "sn-knn","it-comp-knn", "comp-knn") 
 
   if(!method %in% allowed_methods){
-    stop(sprintf("method must be in %s", paste(allowed_methods, sep=",")))
+    stop(sprintf("method must be in %s", paste(allowed_methods, collapse=",")))
   }
   
   if(method %in% msnbase_methods){
@@ -142,7 +147,7 @@ imputeOptProc <- function(obj, method, k, verbose=FALSE){
     }
     
     if(method=="knn"){
-      .imputed <- obj %>% MSnbase::impute(method="knn", k=args$k)
+      .imputed <- obj %>% MSnbase::impute(method="knn", k=k)
     } else {
       .imputed <- obj %>% MSnbase::impute(method=method)
     }
