@@ -35,7 +35,10 @@ robComp <- function(obj, method="comp-knn", k, sum_first=FALSE, verbose=FALSE){
 
   .imputed <- obj
   exprs(.imputed) <- eImp$xImp
-  exprs(.imputed) <- exprs(.imputed) * rowSums(exprs(obj), na.rm=TRUE)
+
+  if(sum_first){
+    exprs(.imputed) <- exprs(.imputed) * rowSums(exprs(obj), na.rm=TRUE)
+  }
 
   invisible(.imputed)
 }
@@ -80,7 +83,7 @@ getTruthImputed <- function(obj, missing_obj, truth_obj){
 
   missing_obj <- missing_obj[rownames(obj),]
   truth_obj <- truth_obj[rownames(obj),]
-  
+
   missing <- missing_obj[fData(missing_obj)$sim_missing,]
   truth <- truth_obj[fData(missing_obj)$sim_missing,]
   obj_imp_only <- obj[fData(missing_obj)$sim_missing,]
@@ -113,20 +116,28 @@ getRMSE <- function(truth, imputed){
 #' @return scatter plot for truth vs imputed
 #' @export
 plotTruthImputed <- function(obj){
+
+  min_value = min(c(log2(obj$truth), log2(obj$imputed)), na.rm=TRUE)
+
+  max_value = max(c(log2(obj$truth), log2(obj$imputed)), na.rm=TRUE)
+
   p <- ggplot(obj, aes(log2(truth), log2(imputed))) +
     geom_point(size=0.25, alpha=0.25) +
+    ggtitle(round(getRMSE(obj$truth, obj$imputed), 1)) +
     my_theme +
-    theme(text=element_text(size=14),
-          plot.title=element_text(size=10, hjust=0.5)) +
-    geom_abline(slope=1, linetype="dashed", colour=cbPalette[7])
+    theme(text=element_text(size=20),
+          plot.title=element_text(size=20, hjust=0.5)) +
+    geom_abline(slope=1, linetype="dashed", colour=cbPalette[7]) +
+    xlim(min_value, max_value) +
+    ylim(min_value, max_value)
 
   return(p)
 }
 
-#' Impute missing values using either \code{\link{MSnbase::impute}} or 
+#' Impute missing values using either \code{\link{MSnbase::impute}} or
 #' \code{\link{RobCompositions}}
 #' @param obj MSnSet with missing values
-#' @param method imputation method, Choose from knn, MinDet, MinProb, 
+#' @param method imputation method, Choose from knn, MinDet, MinProb,
 #' sn-knn, it-comp-knn or comp-knn
 #' @return input MSnSet with missing values imputed
 #' @seealso \code{\link{robCompositions::impKNNa}} for comp-knn and
@@ -135,27 +146,27 @@ plotTruthImputed <- function(obj){
 imputeOptProc <- function(obj, method, k, verbose=FALSE){
   if(verbose) write("Imputing missing values", stdout())
   msnbase_methods <- c("knn", "MinDet", "MinProb")
-  allowed_methods <- c(msnbase_methods, "sn-knn","it-comp-knn", "comp-knn") 
+  allowed_methods <- c(msnbase_methods, "sn-knn","it-comp-knn", "comp-knn")
 
   if(!method %in% allowed_methods){
     stop(sprintf("method must be in %s", paste(allowed_methods, collapse=",")))
   }
-  
+
   if(method %in% msnbase_methods){
     if(!verbose){
       sink("/dev/null")
     }
-    
+
     if(method=="knn"){
       .imputed <- obj %>% MSnbase::impute(method="knn", k=k)
     } else {
       .imputed <- obj %>% MSnbase::impute(method=method)
     }
-    
+
     if(!verbose){
       sink()
     }
-    
+
   } else if(method=="sn-knn"){
     .imputed <- obj %>%
       SnKnn(k=k, verbose=verbose)
