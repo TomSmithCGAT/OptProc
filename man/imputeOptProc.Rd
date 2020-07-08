@@ -2,7 +2,7 @@
 % Please edit documentation in R/impute.R
 \name{imputeOptProc}
 \alias{imputeOptProc}
-\title{Impute missing values using either \code{\link{MSnbase::impute}} or 
+\title{Impute missing values using either \code{\link{MSnbase::impute}} or
 \code{\link{RobCompositions}}}
 \usage{
 imputeOptProc(obj, method, k, verbose = FALSE)
@@ -10,14 +10,14 @@ imputeOptProc(obj, method, k, verbose = FALSE)
 \arguments{
 \item{obj}{MSnSet with missing values}
 
-\item{method}{imputation method, Choose from knn, MinDet, MinProb, 
+\item{method}{imputation method, Choose from knn, MinDet, MinProb,
 sn-knn, it-comp-knn or comp-knn}
 }
 \value{
 input MSnSet with missing values imputed
 }
 \description{
-Impute missing values using either \code{\link{MSnbase::impute}} or 
+Impute missing values using either \code{\link{MSnbase::impute}} or
 \code{\link{RobCompositions}}
 }
 \seealso{

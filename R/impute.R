@@ -26,7 +26,7 @@ robComp <- function(obj, method="comp-knn", k, sum_first=FALSE, verbose=FALSE){
   if(method=="comp-knn"){
     eImp <- robCompositions::impKNNa(obj_e, k=k)
   } else if(method=="it-comp-knn"){
-    eImp <- robCompositions::impCoda(obj_e, method='ltsReg', k=5)
+    eImp <- robCompositions::impCoda(obj_e, method='ltsReg', k=k)
   } else { stop("Unknown method")}
 
   if(verbose){
@@ -34,7 +34,7 @@ robComp <- function(obj, method="comp-knn", k, sum_first=FALSE, verbose=FALSE){
   }
 
   .imputed <- obj
-  exprs(.imputed) <- eImp$xImp
+  exprs(.imputed) <- as.matrix(eImp$xImp)
 
   if(sum_first){
     exprs(.imputed) <- exprs(.imputed) * rowSums(exprs(obj), na.rm=TRUE)
@@ -110,6 +110,32 @@ getRMSE <- function(truth, imputed){
   invisible(RMSE)
 }
 
+
+#' Obtain the Root median squared error (RMedSE)
+#' @param truth ground truths
+#' @param imputed imputed values
+#' @return RMedSE
+#' @export
+#' truth <- c(1,2,3,4,5)
+#' imputed <- c(1,3,2,4,6))
+#' print(getRMedSE(truth, imputed))
+getRMedSE <- function(truth, imputed){
+  RMedSE <- sqrt(mean((truth - imputed)^2))
+  invisible(RMedSE)
+}
+
+#' Obtain the Mean Absolute Relative Difference (MARD)
+#' @param truth ground truths
+#' @param imputed imputed values
+#' @return MARD
+#' @export
+#' truth <- c(1,2,3,4,5)
+#' imputed <- c(1,3,2,4,6))
+#' print(getMARD(truth, imputed))
+getMARD <- function(truth, imputed){
+  MARD <- mean((abs(truth - imputed)/truth))
+  invisible(MARD)
+}
 
 #' Plot the truth vs imputed
 #' @param obj data.frame() with truth and imputed columns

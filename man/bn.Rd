@@ -4,14 +4,14 @@
 \alias{bn}
 \title{Adjust quantification values using bridging channels}
 \usage{
-bn(values, tag1_ix, tag2_ix, bridge1_ix, bridge2_ix)
+bn(values, plex1_ix, plex2_ix, bridge1_ix, bridge2_ix)
 }
 \arguments{
 \item{values}{vector of quantification values}
 
-\item{tag1_ix}{index for quantification values in multiplex 1}
+\item{plex1_ix}{index for quantification values in multiplex 1}
 
-\item{tag2_ix}{index for quantification values in multiplex 2}
+\item{plex2_ix}{index for quantification values in multiplex 2}
 
 \item{bridge1_ix}{index for bridge sample(s) in multiplex 1}
 
@@ -26,5 +26,5 @@ normalise across isobaric tag multiplexes.
 Note that the bridge channels are not normalised.
 }
 \examples{
-bn(c(1,1,2,2,2,4), tag1_ix=1:2, tag2_ix=4:5, bridge1_ix=3, bridge2_ix=6)
+bn(c(1,1,2,2,2,4), plex1_ix=1:2, plex2_ix=4:5, bridge1_ix=3, bridge2_ix=6)
 }

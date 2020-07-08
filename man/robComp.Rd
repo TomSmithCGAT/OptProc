@@ -4,8 +4,7 @@
 \alias{robComp}
 \title{Impute missing values using compositional KNN imputation}
 \usage{
-robComp(obj, method = "comp-knn", k, sum_first = FALSE,
-  verbose = FALSE)
+robComp(obj, method = "comp-knn", k, sum_first = FALSE, verbose = FALSE)
 }
 \arguments{
 \item{obj}{Input}

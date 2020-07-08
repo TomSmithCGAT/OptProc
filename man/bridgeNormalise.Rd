@@ -4,19 +4,25 @@
 \alias{bridgeNormalise}
 \title{Adjust quantification values in MSnSet}
 \usage{
-bridgeNormalise(obj, tag1_ix = 1:10, tag2_ix = 12:21,
-  bridge1_ix = 11, bridge2_ix = 22, keep_bridge = "one")
+bridgeNormalise(
+  obj,
+  plex1_ix = 1:10,
+  plex2_ix = 12:21,
+  bridge1_ix = 11,
+  bridge2_ix = 22,
+  keep_bridge = 0
+)
 }
 \arguments{
-\item{tag1_ix}{index for quantification values in multiplex 1}
+\item{plex1_ix}{index for quantification values in multiplex 1}
 
-\item{tag2_ix}{index for quantification values in multiplex 2}
+\item{plex2_ix}{index for quantification values in multiplex 2}
 
 \item{bridge1_ix}{index for bridge sample(s) in multiplex 1}
 
 \item{bridge2_ix}{index for bridge sample(s) in multiplex 1}
 
-\item{keep_bridge}{'both': keep both bridge samples. 'one': keep just one.}
+\item{keep_bridge}{How many values to retain for each bridge sample (0, 1, or 2)}
 
 \item{values}{vector of quantification values}
 }

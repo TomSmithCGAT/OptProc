@@ -4,14 +4,14 @@
 \alias{mb}
 \title{Average the bridge sample(s) in a vector of quantification values}
 \usage{
-mb(values, tag1_ix, tag2_ix, bridge1_ix, bridge2_ix)
+mb(values, plex1_ix, plex2_ix, bridge1_ix, bridge2_ix)
 }
 \arguments{
 \item{values}{vector of quantification values}
 
-\item{tag1_ix}{index for quantification values in multiplex 1}
+\item{plex1_ix}{index for quantification values in multiplex 1}
 
-\item{tag2_ix}{index for quantification values in multiplex 2}
+\item{plex2_ix}{index for quantification values in multiplex 2}
 
 \item{bridge1_ix}{index for bridge sample(s) in multiplex 1}
 
@@ -25,5 +25,5 @@ Note, redundant bridge sample(s) are removed
 }
 \examples{
 q <- c(1,1,NA,3,2,2,4,6)
-MeanBridges(q, tag1_ix=1:2, tag2_ix=5:6, bridge1_ix=3:4, bridge2_ix=7:8)
+MeanBridges(q, plex1_ix=1:2, plex2_ix=5:6, bridge1_ix=3:4, bridge2_ix=7:8)
 }
