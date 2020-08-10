@@ -72,6 +72,36 @@ SnKnn <- function(obj, k=5, verbose=FALSE){
 
 }
 
+#' Impute missing values using KNN imputation with prior max normalisation
+#'
+#' @param obj Input
+#' @param k nearest neighbours
+#' @param verbose Log the start and end time for imputation
+#' @return Input data with missing values imputed
+#' @export
+MaxKnn <- function(obj, k=5, verbose=FALSE){
+
+  max_intensity <- apply(exprs(obj), 1, function(x) max(x, na.rm=TRUE))
+
+  if(!verbose){
+    sink("/dev/null")
+  }
+
+  max_knn <- obj %>%
+    normalise(method="max") %>%
+    MSnbase::impute(method="knn", k=k)
+
+  if(!verbose){
+    sink()
+  }
+
+  exprs(max_knn) <- exprs(max_knn) * max_intensity
+
+  return(max_knn)
+
+}
+
+
 #' Extract the truth and imputed values
 #'
 #' @param obj MSnSet with imputed values
@@ -164,7 +194,7 @@ plotTruthImputed <- function(obj){
 #' \code{\link{RobCompositions}}
 #' @param obj MSnSet with missing values
 #' @param method imputation method, Choose from knn, MinDet, MinProb,
-#' sn-knn, it-comp-knn or comp-knn
+#' sn-knn, max-knn, it-comp-knn or comp-knn
 #' @return input MSnSet with missing values imputed
 #' @seealso \code{\link{robCompositions::impKNNa}} for comp-knn and
 #' \code{\link{robCompositions::impCoda}} for it-comp-knn methods
@@ -172,7 +202,8 @@ plotTruthImputed <- function(obj){
 imputeOptProc <- function(obj, method, k, verbose=FALSE){
   if(verbose) write("Imputing missing values", stdout())
   msnbase_methods <- c("knn", "MinDet", "MinProb")
-  allowed_methods <- c(msnbase_methods, "sn-knn","it-comp-knn", "comp-knn")
+  allowed_methods <- c(msnbase_methods, "sn-knn", "max-knn",
+                       "it-comp-knn", "comp-knn")
 
   if(!method %in% allowed_methods){
     stop(sprintf("method must be in %s", paste(allowed_methods, collapse=",")))
@@ -193,6 +224,9 @@ imputeOptProc <- function(obj, method, k, verbose=FALSE){
       sink()
     }
 
+  } else if(method=="max-knn"){
+    .imputed <- obj %>%
+      MaxKnn(k=k, verbose=verbose)
   } else if(method=="sn-knn"){
     .imputed <- obj %>%
       SnKnn(k=k, verbose=verbose)
