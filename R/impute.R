@@ -150,7 +150,7 @@ getRMSE <- function(truth, imputed){
 #' imputed <- c(1,3,2,4,6))
 #' print(getRMedSE(truth, imputed))
 getRMedSE <- function(truth, imputed){
-  RMedSE <- sqrt(mean((truth - imputed)^2))
+  RMedSE <- sqrt(median((truth - imputed)^2))
   invisible(RMedSE)
 }
 
@@ -179,7 +179,7 @@ plotTruthImputed <- function(obj){
 
   p <- ggplot(obj, aes(log2(truth), log2(imputed))) +
     geom_point(size=0.25, alpha=0.25) +
-    ggtitle(round(getRMSE(obj$truth, obj$imputed), 1)) +
+    ggtitle(round(getMARD(obj$truth, obj$imputed), 1)) +
     my_theme +
     theme(text=element_text(size=20),
           plot.title=element_text(size=20, hjust=0.5)) +
@@ -216,6 +216,8 @@ imputeOptProc <- function(obj, method, k, verbose=FALSE){
 
     if(method=="knn"){
       .imputed <- obj %>% MSnbase::impute(method="knn", k=k)
+    } else if(method=='MinProb') {
+      .imputed <- obj %>% MSnbase::impute(method=method, tune.sigma=0.01)
     } else {
       .imputed <- obj %>% MSnbase::impute(method=method)
     }
