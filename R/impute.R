@@ -133,7 +133,7 @@ getTruthImputed <- function(obj, missing_obj, truth_obj){
 #' @return RMSE
 #' @export
 #' truth <- c(1,2,3,4,5)
-#' imputed <- c(1,3,2,4,6))
+#' imputed <- c(1,3,2,4,6)
 #' print(getRMSE(truth, imputed))
 getRMSE <- function(truth, imputed){
   RMSE <- sqrt(mean((truth - imputed)^2))
@@ -147,7 +147,7 @@ getRMSE <- function(truth, imputed){
 #' @return RMedSE
 #' @export
 #' truth <- c(1,2,3,4,5)
-#' imputed <- c(1,3,2,4,6))
+#' imputed <- c(1,3,2,4,6)
 #' print(getRMedSE(truth, imputed))
 getRMedSE <- function(truth, imputed){
   RMedSE <- sqrt(median((truth - imputed)^2))
@@ -160,11 +160,25 @@ getRMedSE <- function(truth, imputed){
 #' @return MARD
 #' @export
 #' truth <- c(1,2,3,4,5)
-#' imputed <- c(1,3,2,4,6))
+#' imputed <- c(1,3,2,4,6)
 #' print(getMARD(truth, imputed))
 getMARD <- function(truth, imputed){
   MARD <- mean((abs(truth - imputed)/truth))
   invisible(MARD)
+}
+
+
+#' Obtain the Mean Absolute Log2 Quotient Error (MAQE)
+#' @param truth ground truths
+#' @param imputed imputed values
+#' @return MAQE
+#' @export
+#' truth <- c(1,2,3,4,5)
+#' imputed <- c(1,3,2,4,6)
+#' print(getMAQE(truth, imputed))
+getMAQE <- function(truth, imputed){
+  MAQE <- mean(abs(log2(truth/imputed)))
+  invisible(MAQE)
 }
 
 #' Plot the truth vs imputed
@@ -179,7 +193,7 @@ plotTruthImputed <- function(obj){
 
   p <- ggplot(obj, aes(log2(truth), log2(imputed))) +
     geom_point(size=0.25, alpha=0.25) +
-    ggtitle(round(getMARD(obj$truth, obj$imputed), 1)) +
+    ggtitle(round(getMAQE(obj$truth, obj$imputed), 1)) +
     my_theme +
     theme(text=element_text(size=20),
           plot.title=element_text(size=20, hjust=0.5)) +
@@ -218,7 +232,6 @@ imputeOptProc <- function(obj, method, k, verbose=FALSE){
       .imputed <- obj %>% MSnbase::impute(method="knn", k=k)
     } else if(method=='MinProb') {
       .imputed <- obj %>% MSnbase::impute(method='MinProb', q=0.01, tune.sigma=0.01)
-      print('MinProb!!')
     } else {
       .imputed <- obj %>% MSnbase::impute(method=method)
     }
