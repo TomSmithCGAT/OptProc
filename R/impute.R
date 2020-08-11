@@ -217,7 +217,8 @@ imputeOptProc <- function(obj, method, k, verbose=FALSE){
     if(method=="knn"){
       .imputed <- obj %>% MSnbase::impute(method="knn", k=k)
     } else if(method=='MinProb') {
-      .imputed <- obj %>% MSnbase::impute(method=method, tune.sigma=0.01)
+      .imputed <- obj %>% MSnbase::impute(method='MinProb', q=0.01, tune.sigma=0.01)
+      print('MinProb!!')
     } else {
       .imputed <- obj %>% MSnbase::impute(method=method)
     }
