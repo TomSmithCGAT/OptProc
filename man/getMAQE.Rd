@@ -2,7 +2,7 @@
 % Please edit documentation in R/impute.R
 \name{getMAQE}
 \alias{getMAQE}
-\title{Obtain the Mean Absolute Quotient Error (MAQE)}
+\title{Obtain the Mean Absolute Log2 Quotient Error (MAQE)}
 \usage{
 getMAQE(truth, imputed)
 }
@@ -15,5 +15,5 @@ getMAQE(truth, imputed)
 MAQE
 }
 \description{
-Obtain the Mean Absolute Quotient Error (MAQE)
+Obtain the Mean Absolute Log2 Quotient Error (MAQE)
 }

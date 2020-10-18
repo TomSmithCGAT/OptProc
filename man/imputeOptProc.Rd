@@ -11,7 +11,7 @@ imputeOptProc(obj, method, k, verbose = FALSE)
 \item{obj}{MSnSet with missing values}
 
 \item{method}{imputation method, Choose from knn, MinDet, MinProb,
-sn-knn, it-comp-knn or comp-knn}
+sn-knn, max-knn, it-comp-knn or comp-knn}
 }
 \value{
 input MSnSet with missing values imputed

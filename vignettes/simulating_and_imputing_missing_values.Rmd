@@ -1,0 +1,89 @@
+---
+title: "Vignette Title"
+author: "Vignette Author"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+library(OptProc)
+library(MSnbase)
+library(camprotR)
+library(tidyverse)
+```
+
+Define infiles
+```{r}
+infile <- system.file("extdata","hyperLOPIT_mES_Rep1_PSMs_txt.gz", package="OptProc")
+fasta_infile <- system.file("extdata", "cRAP_FullIdentifiers.fasta.gz", package="OptProc")
+
+```
+
+Make the cRAP list for filtering
+```{r}
+
+bs.fasta <- Biostrings::fasta.index(fasta_infile, seqtype = "AA")
+
+# Extract the UniProt accessions 
+crap.accessions <- bs.fasta %>% 
+  pull(desc) %>% 
+  stringr::str_extract_all("(?<=\\|).*?(?=\\|)") %>% 
+  unlist()
+
+```
+
+Parse the infile and remove features without quantification values
+```{r}
+psm <- parse_features(read.delim(infile),
+                      level='PSM',
+                      TMT=TRUE,
+                      crap_proteins=crap.accessions,
+                      unique_master=FALSE) # requires Number.of.Protein.Groups column which isn't present
+```
+
+Make MSnSet
+```{r}
+abundance_cols <- colnames(psm)[grepl('Abundance.', colnames(psm))]
+
+psm_e <- as.matrix(psm[,abundance_cols])
+psm_f <- psm[,setdiff(colnames(psm), abundance_cols)]
+
+# update the column names to remove the 'Abundance.` prefix
+colnames(psm_e) <- gsub('Abundance.', '', colnames(psm_e))
+
+res <- MSnbase::MSnSet(exprs=psm_e, fData=psm_f)
+```
+
+```{r}
+plotNA(res)
+```
+Add missing values to 100 PSMs 
+```{r}
+add_missing_psm <- res %>% filterNA(pNA=0.4) %>% # remove features with >40% missing
+  addMissing(
+  n=100, # how many features to add missing values to
+  id_column="Annotated.Sequence", # The fvarlabel for grouping features
+  verbose=TRUE)
+
+```
+Impute missing values
+```{r, message=FALSE}
+imputed_psm_snknn <- imputeOptProc(add_missing_psm$missing, method='sn-knn', k=10, verbose=TRUE)
+imputed_psm_knn <- imputeOptProc(add_missing_psm$missing, method='knn', k=10, verbose=TRUE)
+```
+Plot truth vs imputed
+```{r}
+p <- getTruthImputed(imputed_psm_knn, add_missing_psm$missing, add_missing_psm$truth) %>%
+  plotTruthImputed() + annotate(geom='text', x=-2, y=6, label='knn, k=10', size=5)
+
+p2 <- getTruthImputed(imputed_psm_snknn, add_missing_psm$missing, add_missing_psm$truth) %>%
+  plotTruthImputed() + annotate(geom='text', x=-2, y=6, label='sn-knn, k=10', size=5)
+
+print(p)
+print(p2)
+```
+
