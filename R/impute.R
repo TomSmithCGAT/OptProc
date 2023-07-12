@@ -109,23 +109,41 @@ MaxKnn <- function(obj, k=5, verbose=FALSE){
 #' @param truth_obj MSnSet with ground truths
 #' @return data.frame() with truth and imputed columns
 #' @export
-getTruthImputed <- function(obj, missing_obj, truth_obj){
-
-  missing_obj <- missing_obj[rownames(obj),]
-  truth_obj <- truth_obj[rownames(obj),]
-
-  missing <- missing_obj[fData(missing_obj)$sim_missing,]
-  truth <- truth_obj[fData(missing_obj)$sim_missing,]
-  obj_imp_only <- obj[fData(missing_obj)$sim_missing,]
-
+getTruthImputed <- function (obj, missing_obj, truth_obj) {
+  
+  missing_obj <- missing_obj[rownames(obj), ]
+  
+  truth_obj <- truth_obj[rownames(obj), ]
+  
+  missing <- missing_obj[fData(missing_obj)$sim_missing, ]
+  
+  truth <- truth_obj[fData(missing_obj)$sim_missing, ]
+  
+  obj_imp_only <- obj[fData(missing_obj)$sim_missing, ]
+  
   missing_ix <- is.na(exprs(missing))
-
-  missing_truth <- exprs(truth)[missing_ix]
-
+  
+  missing_truth <- exprs(truth)[missing_ix] 
+  
   missing_imputed <- exprs(obj_imp_only)[missing_ix]
-
-  return(data.frame("truth"=missing_truth, "imputed"=missing_imputed))
+  
+  # We need to use `each=` for this repeat so that each colname (e.g PSM ID) is repeated nrow number of times
+  ids <- rep(colnames(missing_ix), each=nrow(missing_ix))
+  
+  #Then subset using `missing_ix`
+  missing_id <- ids[missing_ix]
+  
+  # Similar process to get ids
+  id <- rep(rownames(missing_ix), ncol(missing_ix))[missing_ix]
+  truth_vs_missing <- data.frame(truth = missing_truth, imputed = missing_imputed, missing_id=missing_id, id=id)
+  
+  # extract the number of missing values per PSM, then merge this onto the data.frame above
+  n_missing <- rowSums(missing_ix) %>% data.frame() %>% setNames('n_missing')
+  truth_vs_missing <- truth_vs_missing %>% merge(n_missing, by.x='id', by.y='row.names')
+  
+  return(truth_vs_missing)
 }
+
 
 #' Obtain the Root mean squared error (RMSE)
 #' @param truth ground truths
